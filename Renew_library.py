@@ -1,4 +1,4 @@
-#!/usr/bin/pythin2.7
+#!/usr/bin/python2.7
 import time
 import argparse
 from datetime import datetime
@@ -59,7 +59,7 @@ class Library(object):
 
     def record(self):
 
-        text_file = open("args.l", "a")
+        text_file = open(args.logfile, "a")
         text_file.write('Library books renewed on {0}/{1}/{2}\n'.format(datetime.today().day,\
                                                                         datetime.today().month,\
                                                                         datetime.today().year))
@@ -93,7 +93,7 @@ def mainloop():
         mylib.renew()
         mylib.record()
     except Exception, e:
-        with open("args.l", "a") as file:
+        with open(args.logfile, "a") as file:
             file.write('Something went wrong on {0}/{1}/{2}\nThe error occured {3}'.format(datetime.today().day,\
                                                                             datetime.today().month,\
                                                                             datetime.today().year), e)
