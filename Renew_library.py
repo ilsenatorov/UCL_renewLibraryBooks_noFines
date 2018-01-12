@@ -1,4 +1,4 @@
-#!/Users/'your_user_name'/anaconda2/bin/python2.7
+#!/usr/bin/pythin2.7
 import time
 import argparse
 from datetime import datetime
@@ -8,6 +8,7 @@ from datetime import datetime
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument("-u", "--username", help="Your username/barcode, can be found on the back of UCL card", type=str)
 parser.add_argument("-p", "--password", help="Your password or PIN, if not changed is set to date and month of you birthday", type=str)
+parser.add_argument("-l", "--logfile", help="Where to dump the logfile", type=str)
 args = parser.parse_args()
 
 
@@ -55,18 +56,18 @@ class Library(object):
         browser.quit()
 
         return
-    
+
     def record(self):
-    
-        text_file = open("Your path to the logout file", "a")
+
+        text_file = open("args.l", "a")
         text_file.write('Library books renewed on {0}/{1}/{2}\n'.format(datetime.today().day,\
                                                                         datetime.today().month,\
                                                                         datetime.today().year))
         text_file.close()
-    
+
         return
 
-    
+
 ##### TRY TO RUN THE CODE WITH THE ARGUMENTS FROM ARGPARSE #####
 
 def internet_on():
@@ -79,7 +80,7 @@ def internet_on():
             response=urllib2.urlopen('http://google.com', timeout=20)
             return True
             break
-        except urllib2.URLError, e: 
+        except urllib2.URLError, e:
             time.sleep(20)
             pass
 
@@ -92,7 +93,7 @@ def mainloop():
         mylib.renew()
         mylib.record()
     except Exception, e:
-        with open("Your path to the logout file", "a") as file:
+        with open("args.l", "a") as file:
             file.write('Something went wrong on {0}/{1}/{2}\nThe error occured {3}'.format(datetime.today().day,\
                                                                             datetime.today().month,\
                                                                             datetime.today().year), e)
