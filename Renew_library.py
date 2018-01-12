@@ -1,13 +1,13 @@
-#!/usr/bin/python
+#!/Users/'your_user_name'/anaconda2/bin/python2.7
 import time
 import argparse
 from datetime import datetime
 
-##### TAKE ARGUMENTS
+##### TAKE ARGUMENTS #####
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
-parser.add_argument("-username", help="Your username/barcode, can be found on the back of UCL card", type=str)
-parser.add_argument("-password", help="Your password or PIN, if not changed is set to date and month of you birthday", type=str)
+parser.add_argument("-u", "--username", help="Your username/barcode, can be found on the back of UCL card", type=str)
+parser.add_argument("-p", "--password", help="Your password or PIN, if not changed is set to date and month of you birthday", type=str)
 args = parser.parse_args()
 
 
@@ -26,7 +26,12 @@ class Library(object):
         from selenium.webdriver.support import expected_conditions as EC
         from selenium.webdriver.common.by import By
 
-        browser = webdriver.Chrome()
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+
+        #If you run this as a launchd, the full path to the chromedriver must be specified:
+        # browser = webdriver.Chrome('/Users/'your user name'/anaconda2/bin/chromedriver', chrome_options=options)
+        browser = webdriver.Chrome(chrome_options=options)
         browser.get(self.url)
 
         button_login_page = browser.find_element_by_id('loginText')
@@ -50,80 +55,46 @@ class Library(object):
         browser.quit()
 
         return
+    
+    def record(self):
+    
+        text_file = open("Your path to the logout file", "a")
+        text_file.write('Library books renewed on {0}/{1}/{2}\n'.format(datetime.today().day,\
+                                                                        datetime.today().month,\
+                                                                        datetime.today().year))
+        text_file.close()
+    
+        return
 
     
-#### TRY TO RUN THE CODE WITH ARGUMENTS FROM ARGPARSE
+##### TRY TO RUN THE CODE WITH THE ARGUMENTS FROM ARGPARSE #####
 
-try:
-    mylib = Library(args.password, args.username)
-    mylib.renew()
-except:
-    print "Please add username and password. To invoke help type: ./Renew_library -h"
+def internet_on():
+    '''Check the internet connection'''
 
+    import urllib2
 
+    while True:
+        try:
+            response=urllib2.urlopen('http://google.com', timeout=20)
+            return True
+            break
+        except urllib2.URLError, e: 
+            time.sleep(20)
+            pass
 
-#### COMMENTED OUT FOR NOW SINCE CRONJOB IS PROBABLY BETTER
+def mainloop():
 
-    # def record(self):
-    #
-    #     text_file = open("Your path to the file to write", "a")
-    #     text_file.write('Library books renewed on {0}/{1}/{2}\n'.format(datetime.today().day,\
-    #                                                                     datetime.today().month,\
-    #                                                                     datetime.today().year))
-    #     text_file.close()
-    #
-    #     return
+    connection = internet_on()
 
-# class _check():
-#
-#     def __init__(self):
-#
-#         self.url = 'https://www.ucl.ac.uk/library/'
-#         self.period = 20
-#
-#     def check(self):
-#
-#         import urllib2
-#
-#         while True:
-#             try:
-#                 answ = urllib2.urlopen(self.url)
-#
-#                 if answ:
-#                     return True
-#                     break
-#
-#                 else: pass
-#
-#             except Exception, e:
-#                 print e, '\n You have no internet connection!'
-#                 time.sleep(self.period)
-#
-# day = datetime.today().weekday()
-# connection = _check()
-#
-# if day == 1:
-#
-#     try:
-#
-#         connection.check()
-#
-#         while True:
-#
-#             USERNAME = raw_input('Please enter your username: ')
-#             PASSWORD = raw_input('Guess the password: ')
-#
-#             if len(PASSWORD) == 4 and len(USERNAME) == 11:
-#                 library = Library(PASSWORD, USERNAME)
-#                 library.renew()
-#                 library.record()
-#                 break
-#
-#             else:
-#                 print '\nPassword or username length does not match!\nTry again:'
-#
-#     except Exception, e:
-#         print e
-#
-# else: pass
-""
+    try:
+        mylib = Library(args.password, args.username)
+        mylib.renew()
+        mylib.record()
+    except Exception, e:
+        with open("Your path to the logout file", "a") as file:
+            file.write('Something went wrong on {0}/{1}/{2}\nThe error occured {3}'.format(datetime.today().day,\
+                                                                            datetime.today().month,\
+                                                                            datetime.today().year), e)
+
+mainloop()
